@@ -43,7 +43,7 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+# doctype_js = {"shipment" : "jaycee_customization/public/js/shipment.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -63,6 +63,37 @@ app_license = "mit"
 # role_home_page = {
 # 	"Role": "home_page"
 # }
+
+# In your custom_app/hooks.py
+# doc_events = {
+#     "Shipment": {
+#         "onload": "jaycee_customization.override.shipment.shipment_onload",
+#         "validate": "jaycee_customization.override.shipment.shipment_validate",
+#     }
+# }
+
+
+doctype_js = {
+    "Sales Order": "public/js/sales_order.js",
+    "Shipment" : "public/js/shipment.js"
+}
+
+
+override_whitelisted_methods = {
+    "erpnext.stock.doctype.shipment.shipment.make_shipment": "jaycee_customization.override.sales_order.make_shipment",
+    "erpnext.selling.doctype.sales_order.sales_order.make_material_request": "jaycee_customization.override.shipments.custom_make_material_request",
+}
+
+
+doc_events = {
+    "Shipment": {
+        "custom_make_material_request": "jaycee_customization.override.shipment.custom_make_material_request"
+    }
+}
+
+
+
+
 
 # Generators
 # ----------
@@ -134,6 +165,10 @@ app_license = "mit"
 
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
+# }
+
+# override_doctype_class = {
+#     "Shipment": "jaycee_customization.override.shipment.CustomShipment"
 # }
 
 # Document Events
