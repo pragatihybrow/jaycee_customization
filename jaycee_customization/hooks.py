@@ -92,6 +92,9 @@ doc_events = {
 }
 
 
+override_doctype_dashboards = {
+    "Sales Order": "jaycee_customization.override.sales_order_dashboard.get_dashboard_data",
+}
 
 
 
