@@ -44,7 +44,7 @@ app_license = "mit"
 
 # include js in doctype views
 # doctype_js = {"shipment" : "jaycee_customization/public/js/shipment.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {"Shipment": "public/js/shipment_listview.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -75,8 +75,14 @@ app_license = "mit"
 
 doctype_js = {
     "Sales Order": "public/js/sales_order.js",
-    "Shipment" : "public/js/shipment.js"
-}
+    "Shipment" : "public/js/shipment.js",
+    
+    }
+
+
+# listview_settings = {
+#     "Shipment": "public/js/shipment_listview.js",
+# }
 
 
 override_whitelisted_methods = {

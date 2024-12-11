@@ -19,12 +19,17 @@ def make_shipment(source_name, target_doc=None):
         target.custom_testing_and_sampling = source.custom_testing_and_sampling
         target.custom_shipment_schedule  = source.custom_shipment_schedule
         target.shipment_type  = source.custom_shipment_type
+        target.delivery_contact_name = source.contact_person
+        target.pickup_contact_person = source.company_contact_person
+        target.custom_customers_purchase_order = source.po_no
         
         sales_order_id = source.name  
+        grand_total =source.grand_total
         
         
         target.append('custom_shipment_sales_order_', {
-            'sales_order': sales_order_id
+            'sales_order': sales_order_id,
+            'grand_total' : grand_total
         })
     doc = get_mapped_doc(
         "Sales Order",
