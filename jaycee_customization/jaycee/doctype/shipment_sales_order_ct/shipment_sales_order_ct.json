@@ -19,6 +19,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "sales_order.grand_total",
    "fieldname": "grand_total",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -34,7 +35,7 @@
  ],
  "istable": 1,
  "links": [],
- "modified": "2024-12-11 12:37:47.212922",
+ "modified": "2024-12-12 10:37:18.723012",
  "modified_by": "Administrator",
  "module": "Jaycee",
  "name": "Shipment Sales Order CT",
