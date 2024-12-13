@@ -7,7 +7,18 @@ frappe.ui.form.on('Shipment', {
                 __("Get Items From")
             );
         }
+        {
+            if (frm.doc.docstatus === 1) {
+                frm.add_custom_button(__('Sales Invoice'), function () {
+                    frappe.model.open_mapped_doc({
+                        method: "jaycee_customization.override.sales_invoice.make_sales_invoice", 
+                        frm: frm,
+                    });
+                }, __("Create"));
+            }
+        }
     },
+    
 
     get_items_from_sales_order: function(frm) {
         erpnext.utils.map_current_doc({
@@ -46,3 +57,5 @@ frappe.ui.form.on('Shipment', {
         }
     }
 });
+
+
