@@ -2,8 +2,7 @@ import frappe
 from frappe.utils import today, get_first_day, add_months
 
 def add_compensatory_leaves():
-    """Automatically allocate 2 compensatory leave days for all employees every month."""
-    leave_type = "Compensatory Off"  # Corrected Leave Type
+    leave_type = "Paid Leave"  # Corrected Leave Type
     first_day_of_month = get_first_day(today())
 
     # Check if Leave Type exists
