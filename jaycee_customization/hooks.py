@@ -289,3 +289,17 @@ override_doctype_dashboards = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+
+scheduler_events = {
+    "monthly": [
+        "jaycee_customization.override.scheduled_tasks.add_compensatory_leaves"
+    ]
+}
+
+doc_events = {
+    "Attendance": {
+        "on_submit": "jaycee_customization.override.attendance.after_submit"
+    }
+}
+
