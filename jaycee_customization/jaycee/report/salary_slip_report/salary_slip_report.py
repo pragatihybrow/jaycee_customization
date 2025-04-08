@@ -123,8 +123,6 @@ def get_data(filters):
                 income_tax = d.amount
             elif d.salary_component == "ESIC employer":
                 esi_employer = d.amount
-            elif d.salary_component == "Professional Tax":
-                professional_tax = d.amount
             elif d.salary_component == "Loan EMI":
                 loan_emi = d.amount
 
@@ -164,7 +162,7 @@ def get_data(filters):
             "esi_employee_contribution": esi_employee,
             "esi_employer_contribution": esi_employer,
             "total_contributions": s.custom_total_deduction_amount,
-            "professional_tax": professional_tax,
+            "professional_tax": ps.rofessional_tax,
             "loan_emi": loan_emi,
             "ad_hoc_deduction": s.ad_hoc_deduction,
             "income_tax": income_tax,
