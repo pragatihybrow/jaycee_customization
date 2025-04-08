@@ -162,7 +162,7 @@ def get_data(filters):
             "esi_employee_contribution": esi_employee,
             "esi_employer_contribution": esi_employer,
             "total_contributions": s.custom_total_deduction_amount,
-            "professional_tax": ps.rofessional_tax,
+            "professional_tax": s.professional_tax,
             "loan_emi": loan_emi,
             "ad_hoc_deduction": s.ad_hoc_deduction,
             "income_tax": income_tax,
