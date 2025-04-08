@@ -2,7 +2,8 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.utils import getdate
+from frappe.utils import getdate, formatdate
+import calendar
 
 def execute(filters=None):
     columns = get_columns()
@@ -30,28 +31,31 @@ def get_columns():
         {"label": "Enrichment 2", "fieldname": "enrichment_2", "fieldtype": "Data", "width": 150}
     ]
 
+from frappe.utils import getdate
+
 def get_data(filters):
     salary_slips = frappe.get_all(
         "Salary Slip", 
-        fields=["employee", "posting_date", "net_pay", "name"], 
+        fields=["employee", "posting_date", "net_pay", "name", "company", "bank_name"], 
         filters={"docstatus": 1}
     )
 
     data = []
     for slip in salary_slips:
         employee = frappe.get_doc("Employee", slip.employee)
+        company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
+        month_year = slip.posting_date.strftime("%b %Y").upper()
 
-        # Note:
-        # 'bank_ac_no' and 'ifsc_code' are fields in the Employee doctype.
-        # They are used as 'Beneficiary ACC No' and 'IFSC Code' in the report output.
+        # Payment type logic based on bank name
+        payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
 
         row = {
-            "client_code": "JAYCEEBUI",  # Static value - update as needed
-            "product_code": "RPAY",      # Static value - update as needed
-            "payment_type": "Salary",
+            "client_code": company_abbr,
+            "product_code": "RPAY",
+            "payment_type": payment_type,
             "payment_ref_no": slip.name,
             "payment_date": slip.posting_date,
-            "dr_ac_no": "1234567890",    # Replace with actual company account number
+            "dr_ac_no": "9412291051",  # Replace with actual company account number
             "amount": slip.net_pay,
             "beneficiary_code": employee.name,
             "beneficiary_name": employee.employee_name,
@@ -59,9 +63,9 @@ def get_data(filters):
             "beneficiary_acc_no": employee.bank_ac_no,
             "beneficiary_email": employee.company_email,
             "beneficiary_mobile": employee.cell_number,
-            "debit_narration": f"Salary Payment {slip.name}",
-            "credit_narration": f"Salary Credited {employee.employee_name}",
-            "enrichment_1": "-",  # Additional fields if needed
+            "debit_narration": employee.employee_name,
+            "credit_narration": f"{company_abbr} Salary for {month_year}",
+            "enrichment_1": "-",
             "enrichment_2": "-"
         }
         data.append(row)
