@@ -34,6 +34,6 @@ def add_compensatory_leaves():
                 "docstatus": 1  # Auto-submit
             })
             leave_allocation.insert(ignore_permissions=True)
+            frappe.db.set_value("Leave Allocation", allocation.name, "carry_forward", 1)
             frappe.db.commit()
-
             frappe.msgprint(f"Added 2 compensatory off leaves for {emp.name}")

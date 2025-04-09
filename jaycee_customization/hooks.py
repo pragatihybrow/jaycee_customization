@@ -303,3 +303,9 @@ doc_events = {
     }
 }
 
+
+# doc_events = {
+#     "Attendance": {
+#         "on_submit": "jaycee_customization.override.attendance.mark_comp_off"
+#     }
+# }

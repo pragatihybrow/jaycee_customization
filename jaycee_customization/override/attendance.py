@@ -98,9 +98,12 @@ def add_comp_off_directly(attendance, method):
             "from_date": from_date,
             "to_date": to_date,
             "total_leaves_allocated": 1,
+            "new_leaves_allocated":1,
             "docstatus": 1  # Submitted
         })
         allocation.insert(ignore_permissions=True)
+        frappe.db.set_value("Leave Allocation", allocation.name, "carry_forward", 1)
+
         frappe.msgprint(f"✅ New Comp-Off Leave Allocation created for {employee} with 1 leave.")
 
 def after_submit(attendance, method):
