@@ -50,14 +50,14 @@ def get_data(filters):
         payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
 
         row = {
-            "client_code": company_abbr,
+            "client_code": "JAYCEEBUI",
             "product_code": "RPAY",
             "payment_type": payment_type,
-            "payment_ref_no": slip.name,
+            "payment_ref_no":"",
             "payment_date": slip.posting_date,
             "dr_ac_no": "9412291051",  # Replace with actual company account number
             "amount": slip.net_pay,
-            "beneficiary_code": employee.name,
+            "beneficiary_code": "",
             "beneficiary_name": employee.employee_name,
             "ifsc_code": employee.ifsc_code,
             "beneficiary_acc_no": employee.bank_ac_no,
