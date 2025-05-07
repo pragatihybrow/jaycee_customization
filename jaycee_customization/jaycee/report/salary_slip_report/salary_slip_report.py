@@ -1,10 +1,3 @@
-# Copyright (c) 2025, Pragati Dike and contributors
-# For license information, please see license.txt
-
-
-# Copyright (c) 2025, Pragati Dike and contributors
-# For license information, please see license.txt
-
 import frappe
 from frappe.utils import getdate
 
@@ -12,6 +5,7 @@ def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
     return columns, data
+
 
 def get_columns():
     return [
@@ -49,9 +43,12 @@ def get_columns():
         {"label": "ESI Employer", "fieldname": "esi_employer_contribution", "fieldtype": "Currency", "width": 100},
         {"label": "Total Contributions(B)", "fieldname": "total_contributions", "fieldtype": "Currency", "width": 150},
         {"label": "Professional Tax", "fieldname": "professional_tax", "fieldtype": "Currency", "width": 120},
+        {"label": "PT (Gujarat)", "fieldname": "professional_tax_g", "fieldtype": "Currency", "width": 120},
+        {"label": "PT (Andra Pradesh)", "fieldname": "professional_tax_p", "fieldtype": "Currency", "width": 140},
+        {"label": "PT (Maharashtra)", "fieldname": "professional_tax_m", "fieldtype": "Currency", "width": 140},
         {"label": "Loan EMI", "fieldname": "loan_emi", "fieldtype": "Currency", "width": 100},
         {"label": "Ad Hoc Deduction", "fieldname": "ad_hoc_deduction", "fieldtype": "Currency", "width": 130},
-        {"label": "Total Income Tax", "fieldname": "income_tax", "fieldtype": "Currency", "width": 120},
+        {"label": "Income Tax", "fieldname": "income_tax", "fieldtype": "Currency", "width": 120},
         {"label": "Total Deductions(C)", "fieldname": "total_deduction", "fieldtype": "Currency", "width": 140},
         {"label": "Net Pay(A-B-C)", "fieldname": "net_pay", "fieldtype": "Currency", "width": 140},
         {"label": "Cash Advance(D)", "fieldname": "cash_advance", "fieldtype": "Currency", "width": 120},
@@ -61,34 +58,36 @@ def get_columns():
         {"label": "Total Net Pay(A-B-C+D+E+F)", "fieldname": "total_net_pay", "fieldtype": "Currency", "width": 180}
     ]
 
+
 def get_data(filters):
     salary_slips = frappe.get_all("Salary Slip", filters=filters, fields=["*"])
     data = []
 
     for s in salary_slips:
+        # Employee details
         employee_doc = frappe.get_value(
-            "Employee",
-            s.employee,
+            "Employee", s.employee,
             ["date_of_joining", "gender", "date_of_birth", "pan_number", "employment_type", "payroll_cost_center", "company"],
             as_dict=True
         ) or {}
 
         payroll_month = getdate(s.start_date).strftime('%b').upper() + " - " + getdate(s.start_date).strftime('%Y')
 
-        # Initialize contribution/deduction components
-        pf_employee_contribution = pf_employer_contribution = pf_other = 0
-        esi_employee = esi_employer = 0
-
         # Initialize earning components
         base = hra = special_allowance = lta = 0
+        # Initialize contribution components
+        pf_employee_contribution = pf_employer_contribution = pf_other = 0
+        esi_employee = esi_employer = 0
+        # Initialize deduction components
+        professional_tax = professional_tax_g = professional_tax_p = professional_tax_m = 0
+        income_tax = loan_emi = ad_hoc_deduction = 0
 
-        # Get earnings
+        # Fetch earnings
         earnings = frappe.get_all(
             "Salary Detail",
             filters={"parent": s.name, "parenttype": "Salary Slip", "parentfield": "earnings"},
             fields=["salary_component", "amount"]
         )
-
         for e in earnings:
             if e.salary_component == "Basic":
                 base = e.amount
@@ -99,13 +98,12 @@ def get_data(filters):
             elif e.salary_component == "Travel Reimbursement (LTA)":
                 lta = e.amount
 
-        # Get deductions
+        # Fetch deductions
         deductions = frappe.get_all(
             "Salary Detail",
             filters={"parent": s.name, "parenttype": "Salary Slip", "parentfield": "deductions"},
             fields=["salary_component", "amount"]
         )
-
         for d in deductions:
             if d.salary_component == "PF employee":
                 pf_employee_contribution = d.amount
@@ -119,16 +117,25 @@ def get_data(filters):
                 esi_employer = d.amount
             elif d.salary_component == "Professional Tax":
                 professional_tax = d.amount
+            elif d.salary_component == "Professional Tax (Gujarat)":
+                professional_tax_g = d.amount
+            elif d.salary_component == "Professional Tax (Andra Pradesh)":
+                professional_tax_p = d.amount
+            elif d.salary_component == "Professional Tax (Maharashtra)":
+                professional_tax_m = d.amount
             elif d.salary_component == "Income Tax":
                 income_tax = d.amount
-            elif d.salary_component == "ESIC employer":
-                esi_employer = d.amount
             elif d.salary_component == "Loan EMI":
                 loan_emi = d.amount
+            elif d.salary_component == "Ad Hoc Deduction":
+                ad_hoc_deduction = d.amount
 
-        total_contributions = pf_employee_contribution + pf_employer_contribution + pf_other + esi_employee + esi_employer
-        total_net_pay = (s.net_pay or 0) + (s.cash_advance or 0) + (s.settlement_against_advance or 0) + (s.total_reimbursement or 0)
+        total_contributions = (pf_employee_contribution + pf_employer_contribution + pf_other
+                               + esi_employee + esi_employer)
+        total_net_pay = ((s.net_pay or 0) + (s.cash_advance or 0)
+                         + (s.settlement_against_advance or 0) + (s.total_reimbursement or 0))
 
+        # Build row
         data.append({
             "employee": s.employee,
             "employee_name": s.employee_name,
@@ -161,11 +168,14 @@ def get_data(filters):
             "pf_other": pf_other or 0.00,
             "esi_employee_contribution": esi_employee or 0.00,
             "esi_employer_contribution": esi_employer or 0.00,
-            "total_contributions": s.custom_total_deduction_amount or 0.00,
-            "professional_tax": s.professional_tax or 0.00,
-            "loan_emi": s.loan_emi or 0.00,
-            "ad_hoc_deduction": s.ad_hoc_deduction or 0.00,
-            "income_tax": s.income_tax or 0.00,
+            "total_contributions": total_contributions or 0.00,
+            "professional_tax": professional_tax or 0.00,
+            "professional_tax_g": professional_tax_g or 0.00,
+            "professional_tax_p": professional_tax_p or 0.00,
+            "professional_tax_m": professional_tax_m or 0.00,
+            "loan_emi": loan_emi or 0.00,
+            "ad_hoc_deduction": ad_hoc_deduction or 0.00,
+            "income_tax": income_tax or 0.00,
             "total_deduction": s.total_deduction or 0.00,
             "net_pay": s.net_pay or 0.00,
             "cash_advance": s.cash_advance or 0.00,
@@ -173,6 +183,6 @@ def get_data(filters):
             "need_based_items": s.need_based_items or 0.00,
             "total_reimbursement": s.total_reimbursement or 0.00,
             "total_net_pay": total_net_pay or 0.00
-       } )
+        })
 
     return data
