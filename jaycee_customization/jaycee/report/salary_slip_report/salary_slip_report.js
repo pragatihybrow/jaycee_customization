@@ -11,13 +11,15 @@ frappe.query_reports["Salary Slip Report"] = {
         },
 		{
             "fieldname": "payroll_month_from",
-            "label": "Payroll Month From",
-            "fieldtype": "Select",
-            "options": [
-               " ", "JAN - 25", "FEB - 25", "MAR - 25", "APR - 25", "MAY - 25", "JUN - 25",
-                "JUL - 25", "AUG - 25", "SEP - 25", "OCT - 25", "NOV - 25", "DEC - 25"
-            ]
+            "label": "From Date",
+            "fieldtype": "Date",
+            
         },
-       
+        {
+            "fieldname": "payroll_month_to",
+            "label": "To Date",
+            "fieldtype": "Date",
+            
+        }
     ]
 };
