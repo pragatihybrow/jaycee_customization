@@ -1,5 +1,11 @@
 import frappe
 from frappe.utils import getdate
+from datetime import datetime
+import calendar
+
+def payroll_month_to_date(month_str):
+    """Convert 'FEB - 25' to datetime(2025, 2, 1)"""
+    return datetime.strptime(month_str, "%b - %y")
 
 def execute(filters=None):
     columns = get_columns()
@@ -59,8 +65,48 @@ def get_columns():
     ]
 
 
+
 def get_data(filters):
-    salary_slips = frappe.get_all("Salary Slip", filters=filters, fields=["*"])
+    if not filters:
+        filters = {}
+
+    # Extract and convert "payroll_month_from" to date range
+    payroll_month_from = filters.get("payroll_month_from")
+    start_date, end_date = None, None
+
+    if payroll_month_from:
+        try:
+            # Example: "JAN - 25" → "JAN", "25"
+            month_str, year_suffix = payroll_month_from.split(" - ")
+            month_str = month_str.strip()
+            year = int(f"20{year_suffix.strip()}")  # assume all years are 20xx
+            month = list(calendar.month_abbr).index(month_str.capitalize())
+            start_date = datetime(year, month, 1).date()
+            last_day = calendar.monthrange(year, month)[1]
+            end_date = datetime(year, month, last_day).date()
+        except Exception as e:
+            frappe.throw(f"Invalid 'payroll_month_from' format: {payroll_month_from}. Expected format: 'JAN - 25'")
+
+    # Define allowed filter fields for safety
+    allowed_filters = [
+        "employee", "company", "status", "department",
+        "branch", "designation", "employee_name", "salary_slip_based_on_timesheet"
+    ]
+
+    salary_slip_filters = {key: value for key, value in filters.items() if key in allowed_filters}
+
+    # Add date range filters
+    if start_date and end_date:
+        salary_slip_filters["start_date"] = ["<=", end_date]
+        salary_slip_filters["end_date"] = [">=", start_date]
+
+    # Fetch salary slips
+    salary_slips = frappe.get_all(
+        "Salary Slip",
+        filters=salary_slip_filters,
+        fields=["*"]
+    )
+
     data = []
 
     for s in salary_slips:
@@ -186,3 +232,5 @@ def get_data(filters):
         })
 
     return data
+
+
