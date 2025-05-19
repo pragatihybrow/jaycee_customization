@@ -31,13 +31,17 @@ def get_columns():
         {"label": "Enrichment 2", "fieldname": "enrichment_2", "fieldtype": "Data", "width": 150}
     ]
 
-from frappe.utils import getdate
+
 
 def get_data(filters):
+    conditions = {}
+    if filters.get("payment_date"):
+        conditions["posting_date"] = getdate(filters.get("payment_date"))
+
     salary_slips = frappe.get_all(
         "Salary Slip", 
         fields=["employee", "posting_date", "net_pay", "name", "company", "bank_name"], 
-        # filters={"docstatus": 1}
+        filters=conditions
     )
 
     data = []
@@ -46,16 +50,15 @@ def get_data(filters):
         company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
         month_year = slip.posting_date.strftime("%b %Y").upper()
 
-        # Payment type logic based on bank name
         payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
 
         row = {
             "client_code": "JAYCEEBUI",
             "product_code": "RPAY",
             "payment_type": payment_type,
-            "payment_ref_no":"",
+            "payment_ref_no": "",
             "payment_date": slip.posting_date,
-            "dr_ac_no": "9412291051",  # Replace with actual company account number
+            "dr_ac_no": "9412291051",  # Placeholder
             "amount": slip.net_pay,
             "beneficiary_code": "",
             "beneficiary_name": employee.employee_name,
@@ -71,3 +74,43 @@ def get_data(filters):
         data.append(row)
 
     return data
+
+
+# def get_data(filters):
+#     salary_slips = frappe.get_all(
+#         "Salary Slip", 
+#         fields=["employee", "posting_date", "net_pay", "name", "company", "bank_name"], 
+#         # filters={"docstatus": 1}
+#     )
+
+#     data = []
+#     for slip in salary_slips:
+#         employee = frappe.get_doc("Employee", slip.employee)
+#         company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
+#         month_year = slip.posting_date.strftime("%b %Y").upper()
+
+#         # Payment type logic based on bank name
+#         payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
+
+#         row = {
+#             "client_code": "JAYCEEBUI",
+#             "product_code": "RPAY",
+#             "payment_type": payment_type,
+#             "payment_ref_no":"",
+#             "payment_date": slip.posting_date,
+#             "dr_ac_no": "9412291051",  # Replace with actual company account number
+#             "amount": slip.net_pay,
+#             "beneficiary_code": "",
+#             "beneficiary_name": employee.employee_name,
+#             "ifsc_code": employee.ifsc_code,
+#             "beneficiary_acc_no": employee.bank_ac_no,
+#             "beneficiary_email": employee.company_email,
+#             "beneficiary_mobile": employee.cell_number,
+#             "debit_narration": employee.employee_name,
+#             "credit_narration": f"{company_abbr} Salary for {month_year}",
+#             "enrichment_1": "-",
+#             "enrichment_2": "-"
+#         }
+#         data.append(row)
+
+#     return data
