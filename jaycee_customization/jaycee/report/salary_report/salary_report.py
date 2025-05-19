@@ -37,7 +37,7 @@ def get_data(filters):
     salary_slips = frappe.get_all(
         "Salary Slip", 
         fields=["employee", "posting_date", "net_pay", "name", "company", "bank_name"], 
-        filters={"docstatus": 1}
+        # filters={"docstatus": 1}
     )
 
     data = []
