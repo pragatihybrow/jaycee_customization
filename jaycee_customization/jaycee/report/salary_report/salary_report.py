@@ -48,9 +48,16 @@ def get_data(filters):
     for slip in salary_slips:
         employee = frappe.get_doc("Employee", slip.employee)
         company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
-        month_year = slip.posting_date.strftime("%b %Y").upper()
+        # month_year = slip.posting_date.strftime("%b %Y").upper()
+        from dateutil.relativedelta import relativedelta
 
-        payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
+        month_year = (slip.posting_date - relativedelta(months=1)).strftime("%b %Y").upper()
+
+
+        # payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
+        payment_type = "IFT" if employee.ifsc_code and employee.ifsc_code.startswith("KKBK") else "NEFT"
+
+
 
         row = {
             "client_code": "JAYCEEBUI",
