@@ -1,39 +1,74 @@
 import frappe
 from frappe.utils import today, get_first_day, add_months
+from frappe.utils import getdate, add_days, nowdate, add_months
+from dateutil.relativedelta import relativedelta
 
 def add_compensatory_leaves():
-    leave_type = "Paid Leave"  # Corrected Leave Type
-    first_day_of_month = get_first_day(today())
+    today = getdate(nowdate())
+    start_of_month = today.replace(day=1)
+    end_of_month = (start_of_month + relativedelta(months=1)) - relativedelta(days=1)
 
-    # Check if Leave Type exists
-    if not frappe.db.exists("Leave Type", leave_type):
-        frappe.throw(f"Leave Type '{leave_type}' does not exist. Please create it manually.")
+    leave_type = "Paid Leave"  # Change this to match your system's Paid Leave name
 
-    # Fetch all active employees
-    employees = frappe.get_all("Employee", filters={"status": "Active"}, fields=["name"])
-
+    employees = frappe.get_all("Employee", filters={"status": "Active"}, fields=["name", "company"])
     for emp in employees:
-        # Check if leave allocation already exists for this month
-        existing_allocation = frappe.get_all("Leave Allocation", 
-            filters={
+        exists = frappe.db.exists(
+            "Leave Allocation",
+            {
                 "employee": emp.name,
                 "leave_type": leave_type,
-                "from_date": first_day_of_month,
-                "docstatus": 1  # Only check submitted records
+                "from_date": start_of_month,
+                "to_date": end_of_month,
             }
         )
-
-        if not existing_allocation:
-            leave_allocation = frappe.get_doc({
+        if not exists:
+            doc = frappe.get_doc({
                 "doctype": "Leave Allocation",
                 "employee": emp.name,
+                "company": emp.company,
                 "leave_type": leave_type,
-                "from_date": first_day_of_month,
-                "to_date": add_months(first_day_of_month, 1),
+                "from_date": start_of_month,
+                "to_date": end_of_month,
                 "new_leaves_allocated": 2,
-                "docstatus": 1  # Auto-submit
+                "docstatus": 1,  # Submit the document
             })
-            leave_allocation.insert(ignore_permissions=True)
-            frappe.db.set_value("Leave Allocation", allocation.name, "carry_forward", 1)
-            frappe.db.commit()
-            frappe.msgprint(f"Added 2 compensatory off leaves for {emp.name}")
+            doc.insert()
+            doc.submit()
+            frappe.logger().info(f"Allocated 2 Paid Leaves to {emp.name} for {start_of_month.strftime('%B %Y')}")
+            
+
+    # leave_type = "Paid Leave"  # Corrected Leave Type
+    # first_day_of_month = get_first_day(today())
+
+    # # Check if Leave Type exists
+    # if not frappe.db.exists("Leave Type", leave_type):
+    #     frappe.throw(f"Leave Type '{leave_type}' does not exist. Please create it manually.")
+
+    # # Fetch all active employees
+    # employees = frappe.get_all("Employee", filters={"status": "Active"}, fields=["name"])
+
+    # for emp in employees:
+    #     # Check if leave allocation already exists for this month
+    #     existing_allocation = frappe.get_all("Leave Allocation", 
+    #         filters={
+    #             "employee": emp.name,
+    #             "leave_type": leave_type,
+    #             "from_date": first_day_of_month,
+    #             "docstatus": 1  # Only check submitted records
+    #         }
+    #     )
+
+    #     if not existing_allocation:
+    #         leave_allocation = frappe.get_doc({
+    #             "doctype": "Leave Allocation",
+    #             "employee": emp.name,
+    #             "leave_type": leave_type,
+    #             "from_date": first_day_of_month,
+    #             "to_date": add_months(first_day_of_month, 1),
+    #             "new_leaves_allocated": 2,
+    #             "docstatus": 1  # Auto-submit
+    #         })
+    #         leave_allocation.insert(ignore_permissions=True)
+    #         frappe.db.set_value("Leave Allocation", allocation.name, "carry_forward", 1)
+    #         frappe.db.commit()
+    #         frappe.msgprint(f"Added 2 compensatory off leaves for {emp.name}")
