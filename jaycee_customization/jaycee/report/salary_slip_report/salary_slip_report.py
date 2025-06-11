@@ -102,7 +102,7 @@ def get_data(filters):
     for s in salary_slips:
         employee_doc = frappe.get_value(
             "Employee", s.employee,
-            ["date_of_joining", "gender", "date_of_birth", "pan_number", "employment_type", "payroll_cost_center", "company"],
+            ["date_of_joining", "gender", "date_of_birth", "pan_number", "employment_type", "payroll_cost_center", "company","ctc"],
             as_dict=True
         ) or {}
 
@@ -194,7 +194,7 @@ def get_data(filters):
             "leave_without_pay": s.leave_without_pay,
             "days_payable": s.payment_days,
             "payable_units": f"{int(s.payment_days or 0)}/{int(s.total_working_days or 1)} Days",
-            "gross_amount":base,
+            "gross_amount":(employee_doc.ctc)/12,
             "gross_pay": s.gross_pay or 0.00,
             "base": base,
             "hra": hra,
