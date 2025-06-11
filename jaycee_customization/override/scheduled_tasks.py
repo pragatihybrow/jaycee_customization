@@ -38,10 +38,8 @@
 #             frappe.db.commit()
 #             frappe.msgprint(f"Added 2 compensatory off leaves for {emp.name}")
 
-
 import frappe
 from frappe.utils import getdate, nowdate
-from datetime import datetime
 import calendar
 
 def add_compensatory_leaves():
@@ -50,7 +48,7 @@ def add_compensatory_leaves():
     end_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1])
     leave_type = "Paid Leave"
 
-    employees = frappe.db.get_list("Employee", fields=["name", "company"])
+    employees = frappe.get_all("Employee", filters={"status": "Active"}, fields=["name"])
 
     for emp in employees:
         # Check if leave allocation already exists for this employee, leave type, and month
@@ -77,9 +75,9 @@ def add_compensatory_leaves():
                 "leave_type": leave_type,
                 "from_date": start_of_month,
                 "to_date": end_of_month,
-                "new_leaves_allocated": 1,
+                "new_leaves_allocated": 2,  # Allocating 2 Paid Leaves
                 "company": emp["company"],
-                "docstatus": 0  # Draft
+                "docstatus": 0
             })
             doc.insert()
             doc.submit()
