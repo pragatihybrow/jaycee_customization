@@ -47,6 +47,66 @@
 #             frappe.log_error(frappe.get_traceback(), f"Leave Allocation Failed for {emp['name']}")
 
 
+# import frappe
+# from frappe.utils import getdate, nowdate
+# from datetime import datetime
+# import calendar
+
+# def add_compensatory_leaves():
+#     today = getdate(nowdate())
+    
+#     # Calculate previous month and year
+#     if today.month == 1:
+#         prev_month = 12
+#         prev_year = today.year - 0
+#     else:
+#         prev_month = today.month - 0
+#         prev_year = today.year
+
+#     start_of_month = datetime(prev_year, prev_month, 1).date()
+#     end_of_month = datetime(prev_year, prev_month, calendar.monthrange(prev_year, prev_month)[1]).date()
+    
+#     leave_type = "Paid Leave"
+
+#     employees = frappe.db.get_list("Employee", fields=["name", "company"])
+
+#     for emp in employees:
+#         # Check if leave allocation already exists for this employee, leave type, and that month
+#         existing_allocation = frappe.db.exists(
+#             "Leave Allocation",
+#             {
+#                 "employee": emp["name"],
+#                 "leave_type": leave_type,
+#                 "from_date": ("<=", end_of_month),
+#                 "to_date": (">=", start_of_month),
+#                 "docstatus": 1,
+#                 "new_leaves_allocated":2
+#             }
+#         )
+
+#         if existing_allocation:
+#             frappe.msgprint(f"[Leave Allocation Skipped] Employee: {emp['name']} already has allocation: {existing_allocation}")
+#             continue
+
+#         # Create and submit new Leave Allocation
+#         try:
+#             doc = frappe.get_doc({
+#                 "doctype": "Leave Allocation",
+#                 "employee": emp["name"],
+#                 "leave_type": leave_type,
+#                 "from_date": start_of_month,
+#                 "to_date": end_of_month,
+#                 "new_leaves_allocated": 2,
+#                 "company": emp["company"],
+#                 "docstatus": 0
+#             })
+#             doc.insert()
+#             doc.submit()
+#             frappe.msgprint(f"[Leave Allocation Created] Employee: {emp['name']} - Allocation ID: {doc.name}")
+#         except Exception as e:
+#             frappe.log_error(frappe.get_traceback(), f"Leave Allocation Failed for {emp['name']}")
+
+
 import frappe
 from frappe.utils import getdate, nowdate
 from datetime import datetime
@@ -54,18 +114,18 @@ import calendar
 
 def add_compensatory_leaves():
     today = getdate(nowdate())
-    
+
     # Calculate previous month and year
     if today.month == 1:
         prev_month = 12
-        prev_year = today.year - 4
+        prev_year = today.year - 0
     else:
-        prev_month = today.month - 4
+        prev_month = today.month - 0
         prev_year = today.year
 
     start_of_month = datetime(prev_year, prev_month, 1).date()
     end_of_month = datetime(prev_year, prev_month, calendar.monthrange(prev_year, prev_month)[1]).date()
-    
+
     leave_type = "Paid Leave"
 
     employees = frappe.db.get_list("Employee", fields=["name", "company"])
@@ -80,7 +140,7 @@ def add_compensatory_leaves():
                 "from_date": ("<=", end_of_month),
                 "to_date": (">=", start_of_month),
                 "docstatus": 1,
-                "new_leaves_allocated":2
+                "new_leaves_allocated": 2
             }
         )
 
@@ -88,8 +148,8 @@ def add_compensatory_leaves():
             frappe.msgprint(f"[Leave Allocation Skipped] Employee: {emp['name']} already has allocation: {existing_allocation}")
             continue
 
-        # Create and submit new Leave Allocation
         try:
+            # Create and submit new Leave Allocation
             doc = frappe.get_doc({
                 "doctype": "Leave Allocation",
                 "employee": emp["name"],
@@ -98,6 +158,7 @@ def add_compensatory_leaves():
                 "to_date": end_of_month,
                 "new_leaves_allocated": 2,
                 "company": emp["company"],
+                "carry_forward": 1,  # Enable carry forward
                 "docstatus": 0
             })
             doc.insert()
