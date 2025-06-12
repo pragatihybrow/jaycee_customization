@@ -58,9 +58,9 @@ def add_compensatory_leaves():
     # Calculate previous month and year
     if today.month == 1:
         prev_month = 12
-        prev_year = today.year - 0
+        prev_year = today.year - 1
     else:
-        prev_month = today.month - 0
+        prev_month = today.month - 1
         prev_year = today.year
 
     start_of_month = datetime(prev_year, prev_month, 1).date()
