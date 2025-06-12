@@ -80,11 +80,12 @@ def add_compensatory_leaves():
                 "from_date": ("<=", end_of_month),
                 "to_date": (">=", start_of_month),
                 "docstatus": 1,
+                "new_leaves_allocated":2
             }
         )
 
         if existing_allocation:
-            frappe.logger().info(f"[Leave Allocation Skipped] Employee: {emp['name']} already has allocation: {existing_allocation}")
+            frappe.msgprint(f"[Leave Allocation Skipped] Employee: {emp['name']} already has allocation: {existing_allocation}")
             continue
 
         # Create and submit new Leave Allocation
@@ -101,6 +102,6 @@ def add_compensatory_leaves():
             })
             doc.insert()
             doc.submit()
-            frappe.logger().info(f"[Leave Allocation Created] Employee: {emp['name']} - Allocation ID: {doc.name}")
+            frappe.msgprint(f"[Leave Allocation Created] Employee: {emp['name']} - Allocation ID: {doc.name}")
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), f"Leave Allocation Failed for {emp['name']}")
