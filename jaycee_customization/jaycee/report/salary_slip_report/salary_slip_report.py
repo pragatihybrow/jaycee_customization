@@ -38,15 +38,23 @@ def get_columns():
         {"label": "Payable Units", "fieldname": "payable_units", "fieldtype": "Data", "width": 100},
         {"label": "Remuneration Amount", "fieldname": "gross_amount", "fieldtype": "Currency", "width": 120},
         {"label": "Basic", "fieldname": "base", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear Basic", "fieldname": "arrear_basic", "fieldtype": "Currency", "width": 100},
         {"label": "HRA", "fieldname": "hra", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear HRA", "fieldname": "arrear_hra", "fieldtype": "Currency", "width": 100},
         {"label": "Special Allowance", "fieldname": "special_allowance", "fieldtype": "Currency", "width": 130},
         {"label": "Travel Reimbursement (LTA)", "fieldname": "lta", "fieldtype": "Currency", "width": 180},
+        {"label": "Travel Reimbursement (LTA) Arrear", "fieldname": "arrear_lta", "fieldtype": "Currency", "width": 180},
         {"label": "Gross(A)", "fieldname": "gross_pay", "fieldtype": "Currency", "width": 100},
         {"label": "PF Employee", "fieldname": "pf_employee_contribution", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear PF employee", "fieldname": "arrear_pf_employee", "fieldtype": "Currency", "width": 100},
         {"label": "PF - Employer", "fieldname": "pf_employer_contribution", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear PF employer", "fieldname": "arrear_pf_employer", "fieldtype": "Currency", "width": 100},
         {"label": "PF - Other Charges", "fieldname": "pf_other", "fieldtype": "Currency", "width": 130},
+        {"label": "Arrear PF - Other Charges", "fieldname": "arrear_pf_other", "fieldtype": "Currency", "width": 130},
         {"label": "ESI Employee", "fieldname": "esi_employee_contribution", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear ESIC employee", "fieldname": "arrear_esi_employee", "fieldtype": "Currency", "width": 100},
         {"label": "ESI Employer", "fieldname": "esi_employer_contribution", "fieldtype": "Currency", "width": 100},
+        {"label": "Arrear ESIC employer", "fieldname": "arrear_esi_employer", "fieldtype": "Currency", "width": 100},
         {"label": "Total Contributions(B)", "fieldname": "total_contributions", "fieldtype": "Currency", "width": 150},
         {"label": "Professional Tax", "fieldname": "professional_tax", "fieldtype": "Currency", "width": 120},
         {"label": "PT (Gujarat)", "fieldname": "professional_tax_g", "fieldtype": "Currency", "width": 120},
@@ -131,6 +139,12 @@ def get_data(filters):
                     special_allowance = e.amount
                 case "Travel Reimbursement (LTA)":
                     lta = e.amount
+                case "Arrear Basic":
+                    arrear_basic = e.amount
+                case "Arrear HRA":
+                    arrear_hra = e.amount
+                case "Travel Reimbursement (LTA) Arrear":
+                    arrear_lta = e.amount
 
         # Deductions
         deductions = frappe.get_all(
@@ -164,6 +178,16 @@ def get_data(filters):
                     loan_emi = d.amount
                 case "Ad Hoc Deduction":
                     ad_hoc_deduction = d.amount
+                case "Arrear PF - Other Charges":
+                    arrear_pf_other = d.amount
+                case "Arrear ESIC employee":
+                    arrear_esi_employee = d.amount
+                case "Arrear ESIC employer":
+                    arrear_esi_employer = d.amount
+                case "Arrear PF employee":
+                    arrear_pf_employee = d.amount
+                case "Arrear PF employer":
+                    arrear_pf_employer = d.amount
 
         total_contributions = (pf_employee_contribution + pf_employer_contribution + pf_other +
                                esi_employee + esi_employer)
@@ -197,14 +221,22 @@ def get_data(filters):
             "gross_amount":(employee_doc.ctc)/12,
             "gross_pay": s.gross_pay or 0.00,
             "base": base,
+            "arrear_basic": arrear_basic,
             "hra": hra,
+            "arrear_hra":arrear_hra,
             "special_allowance": special_allowance,
             "lta": lta,
+            "arrear_lta":arrear_lta,
             "pf_employee_contribution": pf_employee_contribution,
+            "arrear_pf_employee":arrear_pf_employee,
             "pf_employer_contribution": pf_employer_contribution,
+            "arrear_pf_employer":arrear_pf_employer,
             "pf_other": pf_other,
+            "arrear_pf_other":arrear_pf_other,
             "esi_employee_contribution": esi_employee,
+            "arrear_esi_employee": arrear_esi_employee,
             "esi_employer_contribution": esi_employer,
+            "arrear_esi_employer": arrear_esi_employer,
             "total_contributions": total_contributions,
             "professional_tax": professional_tax,
             "professional_tax_g": professional_tax_g,
