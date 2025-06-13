@@ -202,7 +202,7 @@ def add_compensatory_leaves():
     today = getdate(nowdate())
    
     current_year = today.year 
-    current_month = today.month -4
+    current_month = today.month - 3
 
     from_date = datetime(current_year, current_month, 1)
     to_date = datetime(current_year, current_month, 1) + timedelta(days=32)
