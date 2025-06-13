@@ -122,6 +122,10 @@ def get_data(filters):
         esi_employee = esi_employer = 0
         professional_tax = professional_tax_g = professional_tax_p = professional_tax_m = 0
         income_tax = loan_emi = ad_hoc_deduction = 0
+        arrear_basic = arrear_hra = arrear_lta = 0
+        arrear_pf_employee = arrear_pf_employer = arrear_pf_other = 0
+        arrear_esi_employee = arrear_esi_employer = 0
+
 
         # Earnings
         earnings = frappe.get_all(
