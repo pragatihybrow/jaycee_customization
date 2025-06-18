@@ -38,7 +38,7 @@ def add_compensatory_leaves():
     
     # Always target April of the current year (or adjust year if today is Jan-Mar)
     current_year = today.year
-    april_month = 5
+    april_month = 4
 
     # If today is in Jan/Feb/Mar, allocate for April of the *previous year*
     if today.month < april_month:
