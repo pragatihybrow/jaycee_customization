@@ -5,6 +5,11 @@ frappe.query_reports["Salary Report"] = {
 			"label": "Payment Date",
 			"fieldtype": "Date",
 			// "default": frappe.datetime.get_today()
-		}
+		},
+		{
+			"label": "Credit Narration", 
+			"fieldname": "credit_narration", 
+			"fieldtype": "Data"},
+
 	]
 };
