@@ -38,7 +38,7 @@ def get_data(filters):
     if filters.get("payment_date"):
         conditions["posting_date"] = getdate(filters.get("payment_date"))
     if filters.get("credit_narration"):
-    conditions["credit_narration"] = ["like", f"%{filters.get('credit_narration')}%"]
+        conditions["credit_narration"] = ["like", f"%{filters.get('credit_narration')}%"]
 
     salary_slips = frappe.get_all(
         "Salary Slip", 
