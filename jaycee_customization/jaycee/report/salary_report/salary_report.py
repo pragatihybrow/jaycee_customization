@@ -31,14 +31,10 @@ def get_columns():
         {"label": "Enrichment 2", "fieldname": "enrichment_2", "fieldtype": "Data", "width": 150}
     ]
 
-
-
 def get_data(filters):
     conditions = {}
     if filters.get("payment_date"):
         conditions["posting_date"] = getdate(filters.get("payment_date"))
-    if filters.get("credit_narration"):
-        conditions["credit_narration"] = ["like", f"%{filters.get('credit_narration')}%"]
 
     salary_slips = frappe.get_all(
         "Salary Slip", 
@@ -47,19 +43,19 @@ def get_data(filters):
     )
 
     data = []
+    from dateutil.relativedelta import relativedelta
+
     for slip in salary_slips:
         employee = frappe.get_doc("Employee", slip.employee)
         company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
-        # month_year = slip.posting_date.strftime("%b %Y").upper()
-        from dateutil.relativedelta import relativedelta
-
         month_year = (slip.posting_date - relativedelta(months=1)).strftime("%b %Y").upper()
-
-
-        # payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
         payment_type = "IFT" if employee.ifsc_code and employee.ifsc_code.startswith("KKBK") else "NEFT"
 
+        credit_narration = f"{company_abbr} Salary for {month_year}"
 
+        # 🔍 Filter credit_narration here (in Python)
+        if filters.get("credit_narration") and filters.get("credit_narration").lower() not in credit_narration.lower():
+            continue
 
         row = {
             "client_code": "JAYCEEBUI",
@@ -67,7 +63,7 @@ def get_data(filters):
             "payment_type": payment_type,
             "payment_ref_no": "",
             "payment_date": slip.posting_date,
-            "dr_ac_no": "9412291051",  # Placeholder
+            "dr_ac_no": "9412291051",
             "amount": slip.net_pay,
             "beneficiary_code": "",
             "beneficiary_name": employee.employee_name,
@@ -76,7 +72,7 @@ def get_data(filters):
             "beneficiary_email": employee.company_email,
             "beneficiary_mobile": employee.cell_number,
             "debit_narration": employee.employee_name,
-            "credit_narration": f"{company_abbr} Salary for {month_year}",
+            "credit_narration": credit_narration,
             "enrichment_1": "-",
             "enrichment_2": "-"
         }
@@ -86,28 +82,40 @@ def get_data(filters):
 
 
 # def get_data(filters):
+#     conditions = {}
+#     if filters.get("payment_date"):
+#         conditions["posting_date"] = getdate(filters.get("payment_date"))
+#     if filters.get("credit_narration"):
+#         conditions["credit_narration"] = ["like", f"%{filters.get('credit_narration')}%"]
+
 #     salary_slips = frappe.get_all(
 #         "Salary Slip", 
 #         fields=["employee", "posting_date", "net_pay", "name", "company", "bank_name"], 
-#         # filters={"docstatus": 1}
+#         filters=conditions
 #     )
 
 #     data = []
 #     for slip in salary_slips:
 #         employee = frappe.get_doc("Employee", slip.employee)
 #         company_abbr = frappe.db.get_value("Company", slip.company, "abbr") or ""
-#         month_year = slip.posting_date.strftime("%b %Y").upper()
+#         # month_year = slip.posting_date.strftime("%b %Y").upper()
+#         from dateutil.relativedelta import relativedelta
 
-#         # Payment type logic based on bank name
-#         payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
+#         month_year = (slip.posting_date - relativedelta(months=1)).strftime("%b %Y").upper()
+
+
+#         # payment_type = "IFT" if slip.bank_name == "Kotak Mahindra Bank Ltd" else "NEFT"
+#         payment_type = "IFT" if employee.ifsc_code and employee.ifsc_code.startswith("KKBK") else "NEFT"
+
+
 
 #         row = {
 #             "client_code": "JAYCEEBUI",
 #             "product_code": "RPAY",
 #             "payment_type": payment_type,
-#             "payment_ref_no":"",
+#             "payment_ref_no": "",
 #             "payment_date": slip.posting_date,
-#             "dr_ac_no": "9412291051",  # Replace with actual company account number
+#             "dr_ac_no": "9412291051",  # Placeholder
 #             "amount": slip.net_pay,
 #             "beneficiary_code": "",
 #             "beneficiary_name": employee.employee_name,
@@ -123,3 +131,4 @@ def get_data(filters):
 #         data.append(row)
 
 #     return data
+
